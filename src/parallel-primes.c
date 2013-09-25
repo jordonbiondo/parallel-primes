@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 #include <assert.h>
 #include <signal.h>
@@ -16,8 +17,7 @@
 int parent_getter(void) {
   static int i = 2;
   i++;
-  if (i < 1000000) return i;
-  else return 0;
+  return i;
 }
 
 
@@ -39,7 +39,6 @@ int main(int argc, char* argv[]) {
   // modes
   int prime_count_max = -1;
   int prime_limit = -1;
-
 
   if (argc == 3) {
     if (strcmp("-n", argv[1]) == 0) {
@@ -65,8 +64,7 @@ int main(int argc, char* argv[]) {
 
   // Number getting function
   number_getter next_num_func = parent_getter;
-
-
+  
   // initial prime
   int my_prime = 2;
   int prime_count = 0;
@@ -85,39 +83,59 @@ int main(int argc, char* argv[]) {
   PIPE_IN(proc_pipe) = 0;
   PIPE_OUT(proc_pipe) = 0;
   pipe(proc_pipe);
-
+  
+#if DEBUG
+  printf("%d: forking new child!\n", getpid());
+  fflush(stdout);
+#else
+  
+#endif
   // fork appropriately
   FORK_TO(&child_pid, parent, child, error);
-
+  
   // parent
   target(parent) {
-    printf("%d\n", my_prime);
-    fflush(stdout);
+    #if DEBUG
+    printf("parent %d is responsible for prime %d\n", getpid(), my_prime); fflush(stdout);
+    #else
+    printf("%d\n", my_prime); fflush(stdout);
+    #endif
+    int oldstdout = dup(STDOUT_FILENO);
     dup2(PIPE_OUT(proc_pipe), STDOUT_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
     int n = 1;
     while (n) {
       n = next_num_func();
-      if (n % my_prime != 0) write(STDOUT_FILENO, &n, sizeof(int));
-    }
-    waitpid(child_pid, NULL, 0);
+      if (n % my_prime != 0) {
+	if (write(STDOUT_FILENO, &n, sizeof(int)) == -1) n = 0;
+      }
+    } 
+    dup2(oldstdout, STDOUT_FILENO);
+    printf("WHAT IS HAPPENING!\n");
+
+    
     return 0;
   }
-
-  // child
+  
+    // child
   target(child) {
     dup2(PIPE_IN(proc_pipe), STDIN_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
-
     read(STDIN_FILENO, &my_prime, sizeof(int));
     prime_count++;
     next_num_func = child_getter;
-
+    
     if ((prime_count_max > 0 && prime_count < prime_count_max) ||
-	(prime_limit > 0 && my_prime < prime_limit)) goto start_point;
-    else return 0;
+	(prime_limit > 0 && my_prime < prime_limit)) {
+      goto start_point;
+    } else {
+      #if DEBUG
+      printf("child (%d) is done!\n", getpid());
+      #endif
+      return 0;
+    }
   }
-
+  
   // error
   target(error) {
     printf("fork failure!");

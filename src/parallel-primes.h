@@ -1,6 +1,10 @@
 #ifndef __PARALLEL_PRIMES_H__
 #define __PARALLEL_PRIMES_H__
 
+#ifndef DEBUG
+#define DEBUG 0
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -19,7 +23,6 @@ typedef int pipe_t[2];
  * Get the read end of the pipe
  */
 #define PIPE_IN(pipe) (pipe[0])
-
 
 /**
  * Get the write end of the pipe
