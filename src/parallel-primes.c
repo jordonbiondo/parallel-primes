@@ -35,11 +35,11 @@ int child_getter(void) {
  * Main
  */
 int main(int argc, char* argv[]) {
-  
+
   // modes
   int prime_count_max = -1;
   int prime_limit = -1;
-  
+
 
   if (argc == 3) {
     if (strcmp("-n", argv[1]) == 0) {
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
   } else {
     goto badargs;
   }
-  
+
   target(badargs) {
     printf("%s\n%s\n%s\n",
 	   "usage: parallel-primes [-n|-limit] [x | x > 0]",
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
   pid_t child_pid;
   pipe_t proc_pipe;
 
-  
+
   /**
    * Child entry poing
    */
@@ -112,8 +112,8 @@ int main(int argc, char* argv[]) {
     read(STDIN_FILENO, &my_prime, sizeof(int));
     prime_count++;
     next_num_func = child_getter;
-    
-    if ((prime_count_max > 0 && prime_count < prime_count_max) || 
+
+    if ((prime_count_max > 0 && prime_count < prime_count_max) ||
 	(prime_limit > 0 && my_prime < prime_limit)) goto start_point;
     else return 0;
   }
