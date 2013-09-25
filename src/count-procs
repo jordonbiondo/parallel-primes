@@ -1,0 +1,2 @@
+#!/bin/bash
+echo pp procs: $(expr $(ps a | grep llel | wc -l) - 1)

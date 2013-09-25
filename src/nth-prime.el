@@ -1013,5 +1013,3 @@
       (message "%s" (elt (prime-list) (1- n)))
     (progn (message "usage: nth-prime [1 <= N <= 10,000]")
 	   (kill-emacs -1))))
-
-
