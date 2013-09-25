@@ -7,75 +7,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
-/**
- * Pipe type
- */
-typedef int pipe_t[2];
-
-/* **************************************************************
- * pipe macros
- * ************************************************************** */
-/**
- * Get the read end of the pipe
- */
-#define PIPE_IN(pipe) (pipe[0])
-
-/**
- * Get the write end of the pipe
- */
-#define PIPE_OUT(pipe) (pipe[1])
-
-/**
- * Close the read and write end of the pipe
- */
-#define PIPE_CLOSE(pipe) (close(PIPE_IN(pipe)) | close(PIPE_OUT(pipe)))
-
-/**
- * Fork and write pid to a pid_t* PID_PTR, then goto the appropriate block, PARENT, CHILD, or ERROR
- *
- * Example;
- *   pid_t child_pid;
- *   FORK_TO(&child_pid, parent, child, error);
- *   parent:
- *    printf("parent here!");
- *    goto end;
- *   child:
- *    printf("child here!");
- *    goto end;
- *   error:
- *    printf("error here!");
- *    goto end;
- *   end:
- *   printf("end!");
- */
-#define FORK_TO(pid_ptr, parent, child, error) {			\
-    *pid_ptr = fork();							\
-    if (*pid_ptr == 0) goto child;					\
-    else if (*pid_ptr == -1) goto error;				\
-    else if (*pid_ptr) goto parent;					\
-  }
-
-/**
- * Inaccessible block of code, except through gotos 
- */
-#define PROCESS_BLOCK(name) if(0) name:
-  
-/* **************************************************************
- * debug macros
- * ************************************************************** */
-
-#define panic(...) {					\
-  printf("panic! @ %s:%d\n", __FILE__, __LINE__);	\
-  printf(__VA_ARGS__);					\
-  printf("\n");						\
-  exit(-1);						\
-  }
-
-
-/**
- * Number getting function type
- */
-typedef int(*number_getter)(void);
+#include "parallel-primes.h"
 
 
 /**
@@ -122,6 +54,7 @@ int main(int argc, char* argv[]) {
   int my_prime = 2;
   int prime_count = 0;
 
+  
   /**
    * Child entry poing
    */
