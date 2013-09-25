@@ -40,7 +40,7 @@ typedef int pipe_t[2];
 /**
  * enter (goto) a process block by name
  */
-#define ENTER(name) goto name
+#define shoot_to(name) goto name
 
 /**
  * Fork and write pid to a pid_t* PID_PTR, then goto the appropriate block, PARENT, CHILD, or ERROR
@@ -62,29 +62,29 @@ typedef int pipe_t[2];
  */
 #define FORK_TO(pid_ptr, parent, child, error) {			\
     *pid_ptr = fork();							\
-    if (*pid_ptr == 0) ENTER(child);					\
-    else if (*pid_ptr == -1) ENTER(error);				\
-    else if (*pid_ptr) ENTER(parent);					\
+    if (*pid_ptr == 0) shoot_to(child);					\
+    else if (*pid_ptr == -1) shoot_to(error);				\
+    else if (*pid_ptr) shoot_to(parent);				\
   }
 
 
 /**
- * Inaccessible block of code, except through gotos
+ * Inaccessible block of code, except through gotos (shoot_to)
  * Example:
  *   puts("a");
- *   PROCESS_BLOCK(foobar) {
+ *   target(foobar) {
  *     puts("b");
- *     ENTER(end);
+ *     shoot_to(end);
  *   }
  *   puts("c");
- *   ENTER(foobar);
- *   PROCESS_BLOCK(end) {
+ *   shoot_to(foobar);
+ *   target(end) {
  *     puts("d");
  *   }
  * 
  * Output: a b d c
  */
-#define PROCESS_BLOCK(name) if(0) name:
+#define target(name) if(0) name:
 
 
 /* **************************************************************

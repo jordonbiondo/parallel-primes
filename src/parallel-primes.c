@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
   FORK_TO(&child_pid, parent, child, error);
 
   // parent
-  PROCESS_BLOCK(parent) {
+  target(parent) {
     dup2(PIPE_OUT(proc_pipe), STDOUT_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
     int n = 1;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
   }
   
   // child
-  PROCESS_BLOCK(child) {
+  target(child) {
     dup2(PIPE_IN(proc_pipe), STDIN_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
     
@@ -96,8 +96,8 @@ int main(int argc, char* argv[]) {
   }
   
   // error
-  PROCESS_BLOCK(error) {
-    printf("fork failure!"); 
+  target(error) {
+    printf("fork failure!");
     return -1;
   }
   
