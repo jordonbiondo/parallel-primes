@@ -26,7 +26,7 @@ int parent_getter(void) {
  */
 int child_getter(void) {
   int a;
-  read(STDIN_FILENO, &a, sizeof(int)); 
+  read(STDIN_FILENO, &a, sizeof(int));
   return a;
 }
 
@@ -37,13 +37,13 @@ int child_getter(void) {
 int main(int argc, char* argv[]) {
 
   if (argc != 3) {
-    printf("%s\n%s\n%s\n", 
-	   "usage: parallel-primes [-n|-limit] [x | x > 0]", 
-	   "\t-n x:\t\t print x number of primes.", 
+    printf("%s\n%s\n%s\n",
+	   "usage: parallel-primes [-n|-limit] [x | x > 0]",
+	   "\t-n x:\t\t print x number of primes.",
 	   "\t-limit x:\t print all primes less than x.");
     exit(-1);
   }
-  
+
   // Number getting function
   number_getter next_num_func = parent_getter;
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
   int my_prime = 2;
   int prime_count = 0;
 
-  
+
   /**
    * Child entry poing
    */
@@ -63,8 +63,8 @@ int main(int argc, char* argv[]) {
   pid_t child_pid;
   pipe_t proc_pipe;
   pipe(proc_pipe);
-  
-  // fork appropriately 
+
+  // fork appropriately
   FORK_TO(&child_pid, parent, child, error);
 
   // parent
@@ -79,14 +79,14 @@ int main(int argc, char* argv[]) {
     waitpid(child_pid, NULL, 0);
     return 0;
   }
-  
+
   // child
   target(child) {
     dup2(PIPE_IN(proc_pipe), STDIN_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
-    
-    read(STDIN_FILENO, &my_prime, sizeof(int)); 
-    
+
+    read(STDIN_FILENO, &my_prime, sizeof(int));
+
     printf("%d\n", my_prime);
     fflush(stdout);
     prime_count++;
@@ -94,14 +94,12 @@ int main(int argc, char* argv[]) {
     if (prime_count < prime_count_limit) goto start_point;
     else return 0;
   }
-  
+
   // error
   target(error) {
     printf("fork failure!");
     return -1;
   }
-  
+
   return -1;
 }
-
- 

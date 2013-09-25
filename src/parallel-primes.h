@@ -81,7 +81,7 @@ typedef int pipe_t[2];
  *   target(end) {
  *     puts("d");
  *   }
- * 
+ *
  * Output: a b d c
  */
 #define target(name) if(0) name:
