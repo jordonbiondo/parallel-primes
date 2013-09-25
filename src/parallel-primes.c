@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+/**
+ * Pipe type
+ */
 typedef int pipe_t[2];
 
 /* **************************************************************
@@ -15,17 +18,17 @@ typedef int pipe_t[2];
 /**
  * Get the read end of the pipe
  */
-#define PIPE_READER(pipe) (pipe[0])
+#define PIPE_IN(pipe) (pipe[0])
 
 /**
  * Get the write end of the pipe
  */
-#define PIPE_WRITER(pipe) (pipe[1])
+#define PIPE_OUT(pipe) (pipe[1])
 
 /**
  * Close the read and write end of the pipe
  */
-#define PIPE_CLOSE(pipe) (close(PIPE_READER(pipe)) | close(PIPE_WRITER(pipe)))
+#define PIPE_CLOSE(pipe) (close(PIPE_IN(pipe)) | close(PIPE_OUT(pipe)))
 
 /**
  * Fork and write pid to a pid_t* PID_PTR, then goto the appropriate block, PARENT, CHILD, or ERROR
@@ -53,7 +56,7 @@ typedef int pipe_t[2];
   }
 
 /**
- * Inaccessible block of code, except for gotos 
+ * Inaccessible block of code, except through gotos 
  */
 #define PROCESS_BLOCK(name) if(0) name:
   
@@ -128,10 +131,12 @@ int main(int argc, char* argv[]) {
   pipe_t proc_pipe;
   pipe(proc_pipe);
   
+  // fork appropriately 
   FORK_TO(&child_pid, parent, child, error);
+
   // parent
   PROCESS_BLOCK(parent) {
-    dup2(PIPE_WRITER(proc_pipe), STDOUT_FILENO);
+    dup2(PIPE_OUT(proc_pipe), STDOUT_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
     int n = 1;
     while (n) {
@@ -144,7 +149,7 @@ int main(int argc, char* argv[]) {
   
   // child
   PROCESS_BLOCK(child) {
-    dup2(PIPE_READER(proc_pipe), STDIN_FILENO);
+    dup2(PIPE_IN(proc_pipe), STDIN_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
     
     read(STDIN_FILENO, &my_prime, sizeof(int)); 
