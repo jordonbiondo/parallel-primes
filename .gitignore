@@ -3,3 +3,5 @@
 \#*
 build/*
 *.o
+/Parallel-Primes.pdf
+/Parallel-Primes.tex

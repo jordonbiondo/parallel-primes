@@ -51,7 +51,7 @@ typedef int pipe_t[2];
  * Example:
  *   pid_t child_pid;
  *   FORK_TO(&child_pid, parent, child, error);
- *   parent:
+ *   parent
  *    printf("parent here!");
  *    goto end;
  *   child:
@@ -70,6 +70,26 @@ typedef int pipe_t[2];
     else if (*pid_ptr) shoot_to(parent);				\
   }
 
+FORK_TO(&child_pid, on_parent, on_child, on_error);
+
+target(on_parent) {
+  printf("parent here");
+  shoot_to(end);
+}
+
+target(on_child) {
+  printf("child here");
+  shoot_to(end);
+}
+
+target(on_error) {
+  printf("forking error!");
+  shoot_to(end);
+}
+
+target(end) {
+  printf("done!");
+}
 
 /**
  * Inaccessible block of code, except through gotos (shoot_to)

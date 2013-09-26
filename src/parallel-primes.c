@@ -110,10 +110,6 @@ int main(int argc, char* argv[]) {
 	if (write(STDOUT_FILENO, &n, sizeof(int)) == -1) n = 0;
       }
     } 
-    dup2(oldstdout, STDOUT_FILENO);
-    printf("WHAT IS HAPPENING!\n");
-
-    
     return 0;
   }
   
