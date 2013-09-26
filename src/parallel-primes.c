@@ -100,7 +100,6 @@ int main(int argc, char* argv[]) {
     #else
     printf("%d\n", my_prime); fflush(stdout);
     #endif
-    int oldstdout = dup(STDOUT_FILENO);
     dup2(PIPE_OUT(proc_pipe), STDOUT_FILENO);
     if (PIPE_CLOSE(proc_pipe) != 0) panic("pipe fail");
     int n = 1;
