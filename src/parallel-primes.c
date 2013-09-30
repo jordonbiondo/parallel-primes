@@ -35,7 +35,8 @@ int child_getter(void) {
  * Main
  */
 int main(int argc, char* argv[]) {
-
+  
+  pid_t main_pid = getpid();
   // modes
   int prime_count_max = -1;
   int prime_limit = -1;
@@ -127,6 +128,7 @@ int main(int argc, char* argv[]) {
       #if DEBUG
       printf("child (%d) is done!\n", getpid());
       #endif
+      kill(main_pid, SIGINT);
       return 0;
     }
   }

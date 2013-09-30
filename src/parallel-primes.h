@@ -109,6 +109,12 @@ typedef int(*number_getter)(void);
 
 
 /**
+ * Parse args
+ */
+void parse_args(int argc, char** argv, int* prime_count_max_out, int* prime_limit_out);
+
+
+/**
  * How the root process gets the next numbers;
  */
 int parent_getter(void);
